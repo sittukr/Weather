@@ -18,4 +18,18 @@ public interface MyApi {
             @Query("q") String state,
             @Query("appid") String appId
     );
+
+    @GET("air_pollution")
+    Call<JsonObject> currentAirPollution(
+            @Query("lat") String lat,
+            @Query("lon") String lon,
+            @Query("appid") String appId
+    );
+
+    @GET("forecast")
+    Call<JsonObject>  forecast(
+            @Query("lat") String lat,
+            @Query("lon") String lon,
+            @Query("appid") String appId
+    );
 }

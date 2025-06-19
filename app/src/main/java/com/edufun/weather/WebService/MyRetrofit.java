@@ -15,6 +15,7 @@ public class MyRetrofit {
 
     public static String APPID = "0e29648800c341f7aaa418254bb8bfda";
     public static String BASE_URL = "https://api.openweathermap.org/data/2.5/";
+    //http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API key}
     public static MyRetrofit MyInstance;
     public static Retrofit retrofit;
 

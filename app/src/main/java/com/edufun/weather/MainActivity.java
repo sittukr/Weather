@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     Activity activity;
     SharedPreferences shp ;
     SharedPreferences.Editor editor;
+    String sunrise,sunset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject coordObj = new JSONObject(coord);
                         String lat = coordObj.getString("lat");
                         String lon = coordObj.getString("lon");
+
+                        currentAirPollution(lat,lon);
+                        getForecast(lat,lon);
 
                         String weather = bodyObject.getString("weather");
                         JSONArray weatherArray = bodyObject.getJSONArray("weather");
@@ -177,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
                         String sys = bodyObject.getString("sys");
                         JSONObject sysObj = new JSONObject(sys);
                         String country = sysObj.getString("country");
-                        String sunrise = sysObj.getString("sunrise");
-                        String sunset = sysObj.getString("sunset");
+                         sunrise = sysObj.getString("sunrise");
+                         sunset = sysObj.getString("sunset");
 
                         String timezone = bodyObject.getString("timezone");
                         String id = bodyObject.getString("id");
@@ -186,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                         String cod = bodyObject.getString("cod");
 
                         binding.tvTemp.setText(MyFun.ktoC(temp)+" \u00b0C");
-                        binding.tvFell.setText(MyFun.ktoCInt(temp_min)+" ~ "+ MyFun.ktoCInt(temp_max)+" \u00B0C" +" Fells like "+MyFun.ktoCInt(feels_like)+" \u00B0C");
+                        binding.tvFell.setText(" Fells like "+MyFun.ktoCInt(feels_like)+" \u00B0C");
                         binding.tvFellLike.setText(MyFun.ktoCInt(feels_like)+" \u00b0C");
                         binding.tvSunRaise.setText(longToTime(Long.valueOf(sunrise))[1]);
                         binding.tvSunSet.setText(longToTime(Long.valueOf(sunset))[1]);
@@ -221,11 +225,166 @@ public class MainActivity extends AppCompatActivity {
                 MyFun.customDialog(context,t.getMessage(),R.drawable.clouds_logo);
             }
         });
+
+
+
     }
 
 
+    private void currentAirPollution(String lat,String lon){
+        Call<JsonObject> call = MyRetrofit.apiInstance().getApi().currentAirPollution(lat,lon,APPID);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful()){
+                    String body = response.body().toString();
+                    try {
+                        JSONObject bodyObj = new JSONObject(body);
+
+                        JSONObject coordObj = bodyObj.getJSONObject("coord");
+                        String latitude = coordObj.getString("lat");
+                        String longitude = coordObj.getString("lon");
+
+                        JSONArray listArray = bodyObj.getJSONArray("list");
+                        for (int i = 0; i<listArray.length(); i++){
+                            JSONObject listObj =listArray.getJSONObject(i);
+
+                            JSONObject dataObj = listObj.getJSONObject("main");
+                            String aqi = dataObj.getString("aqi");
+
+                            JSONObject componentsObj =listObj.getJSONObject("components");
+                            String co = componentsObj.getString("co");
+                            String no = componentsObj.getString("no");
+                            String no2 = componentsObj.getString("no2");
+                            String o3 = componentsObj.getString("o3");
+                            String so2 = componentsObj.getString("so2");
+                            String pm2_5 = componentsObj.getString("pm2_5");
+                            String pm10 = componentsObj.getString("pm10");
+                            String nh3 = componentsObj.getString("nh3");
+
+                            binding.tvCO.setText(co);
+                            binding.tvNO2.setText(no2);
+                            binding.tvO3.setText(o3);
+                            binding.tvSO2.setText(so2);
+                            binding.tvPM25.setText(pm2_5);
+                            binding.tvPM10.setText(pm10);
+
+                            String status = "";
+                            if (aqi.equalsIgnoreCase("1")){
+                                status = "Good";
+                                binding.pollutionStatus.setTextColor(getResources().getColor(R.color.green));
+                            } else if (aqi.equalsIgnoreCase("2")) {
+                                status = "Fair";
+                                binding.pollutionStatus.setTextColor(getResources().getColor(R.color.orange));
+                            }else if (aqi.equalsIgnoreCase("3")){
+                                status = "Moderate";
+                                binding.pollutionStatus.setTextColor(getResources().getColor(R.color.red_orange));
+                            } else if (aqi.equalsIgnoreCase("4")) {
+                                status = "Poor";
+                                binding.pollutionStatus.setTextColor(getResources().getColor(R.color.red));
+                            } else if (aqi.equalsIgnoreCase("5")) {
+                                status = "Very Poor";
+                                binding.pollutionStatus.setTextColor(getResources().getColor(R.color.red));
+                            }
+                            binding.pollutionStatus.setText(status);
 
 
+                            String dt = listObj.getString("dt");
+                        }
+
+
+                    } catch (JSONException e) {
+                        MyFun.customDialog(context,e.getMessage(),R.drawable.clouds_logo);
+                    }
+                }else {
+                    MyFun.customDialog(context,"Something went wrong",R.drawable.clouds_logo);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                MyFun.customDialog(context,t.getMessage(),R.drawable.clouds_logo);
+            }
+        });
+    }
+
+    private void getForecast(String lat ,String lon){
+        Call<JsonObject> call = MyRetrofit.apiInstance().getApi().forecast(lat,lon,APPID);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful()){
+                    String body = response.body().toString();
+                    try {
+                        JSONObject responseObj = new JSONObject(body);
+                        String cnt = responseObj.getString("cnt");
+
+                        JSONObject cityObj = responseObj.getJSONObject("city");
+                        String population = cityObj.getString("population");
+
+                        JSONArray listArray = responseObj.getJSONArray("list");
+                        for (int i = 0; i<listArray.length(); i++){
+                            JSONObject listObj = listArray.getJSONObject(i);
+                            String dt = listObj.getString("dt");
+                            String dt_text = listObj.getString("dt_txt");
+                            String pop = listObj.getString("pop");
+
+                            JSONObject mainObj = listObj.getJSONObject("main");
+                            String temp = mainObj.getString("temp");
+                            String feels_like = mainObj.getString("feels_like");
+                            String pressure = mainObj.getString("pressure");
+                            String sea_level = mainObj.getString("sea_level");
+                            String ground_level = mainObj.getString("grnd_level");
+                            String humidity = mainObj.getString("humidity");
+                            String temp_kf = mainObj.getString("temp_kf");
+
+                            JSONArray weatherArray = listObj.getJSONArray("weather");
+                            int l = weatherArray.length();
+                            for (int j =0; j<weatherArray.length(); j++ ){
+                                JSONObject weatherObj = weatherArray.getJSONObject(j);
+                                String main = weatherObj.getString("main");
+                                String description = weatherObj.getString("description");
+                                String icon = weatherObj.getString("icon");
+                            }
+                            JSONObject cloudObj = listObj.getJSONObject("clouds");
+                            String cloudiness = cloudObj.getString("all");
+
+                            JSONObject windObj = listObj.getJSONObject("wind");
+                            String speed = windObj.getString("speed");
+                            String deg = windObj.getString("deg");
+                            String gust = windObj.getString("gust");
+
+                            if (listObj.has("rain") && !listObj.isNull("rain")) {
+                                JSONObject rainObj = listObj.getJSONObject("rain");
+                                String rain_volume = rainObj.getString("3h");
+                            }
+                            if (listObj.has("snow") && !listObj.isNull("snow")) {
+                                JSONObject snowObj = listObj.getJSONObject("snow");
+                                String rain_volume = snowObj.getString("3h");
+                                // Toast.makeText(MainActivity.this, rain_volume, Toast.LENGTH_SHORT).show();
+                            }
+
+                            JSONObject sysObj = listObj.getJSONObject("sys");
+                            // n= night, d= day
+                            String shift = sysObj.getString("pod");
+                        }
+
+
+
+                    } catch (JSONException e) {
+                        MyFun.customDialog(context,e.getMessage(),R.drawable.clouds_logo);
+                    }
+                }else {
+                    MyFun.customDialog(context,"Something went wrong",R.drawable.clouds_logo);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                MyFun.customDialog(context,t.getMessage(),R.drawable.clouds_logo);
+            }
+        });
+    }
 
 
 
