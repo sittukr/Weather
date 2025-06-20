@@ -72,6 +72,29 @@ public class MyFun {
         return null;
 
     }
+    public static String[] timeformat(Long time){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            LocalDateTime dateTime = Instant.ofEpochSecond(time)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM  hh a");
+            String formattedDate = dateTime.format(formatter);
+            String[] s = formattedDate.split("  ");
+
+            return s;
+        }
+        return null;
+    }
+    public static String currentDateFormat(){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM");
+            String date = now.format(formatter);
+            return  date;
+        }
+        return null;
+    }
 
     public static String ktoCInt(String k){
         return  Integer.toString((int) (Double.parseDouble(k)-273.15));

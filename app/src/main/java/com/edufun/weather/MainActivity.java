@@ -13,14 +13,20 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.edufun.weather.Adapter.ForecastAdapter;
+import com.edufun.weather.Models.ForecastModel;
 import com.edufun.weather.MyUtils.MyFun;
 import com.edufun.weather.WebService.MyRetrofit;
 import com.edufun.weather.databinding.ActivityMainBinding;
@@ -36,6 +42,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -53,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences shp ;
     SharedPreferences.Editor editor;
     String sunrise,sunset;
+
+    ArrayList<ForecastModel> list;
+    ForecastAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -315,6 +325,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful()){
                     String body = response.body().toString();
+                    list = new ArrayList<>();
                     try {
                         JSONObject responseObj = new JSONObject(body);
                         String cnt = responseObj.getString("cnt");
@@ -340,11 +351,12 @@ public class MainActivity extends AppCompatActivity {
 
                             JSONArray weatherArray = listObj.getJSONArray("weather");
                             int l = weatherArray.length();
+                            String main="",description="",icon="";
                             for (int j =0; j<weatherArray.length(); j++ ){
                                 JSONObject weatherObj = weatherArray.getJSONObject(j);
-                                String main = weatherObj.getString("main");
-                                String description = weatherObj.getString("description");
-                                String icon = weatherObj.getString("icon");
+                                 main = weatherObj.getString("main");
+                                 description = weatherObj.getString("description");
+                                 icon = weatherObj.getString("icon");
                             }
                             JSONObject cloudObj = listObj.getJSONObject("clouds");
                             String cloudiness = cloudObj.getString("all");
@@ -354,19 +366,74 @@ public class MainActivity extends AppCompatActivity {
                             String deg = windObj.getString("deg");
                             String gust = windObj.getString("gust");
 
+                            String rain_volume="",snow_volume="";
                             if (listObj.has("rain") && !listObj.isNull("rain")) {
                                 JSONObject rainObj = listObj.getJSONObject("rain");
-                                String rain_volume = rainObj.getString("3h");
+                                 rain_volume = rainObj.getString("3h");
                             }
                             if (listObj.has("snow") && !listObj.isNull("snow")) {
                                 JSONObject snowObj = listObj.getJSONObject("snow");
-                                String rain_volume = snowObj.getString("3h");
+                                 snow_volume = snowObj.getString("3h");
                                 // Toast.makeText(MainActivity.this, rain_volume, Toast.LENGTH_SHORT).show();
                             }
 
                             JSONObject sysObj = listObj.getJSONObject("sys");
                             // n= night, d= day
                             String shift = sysObj.getString("pod");
+
+                            ForecastModel model = new ForecastModel();
+                            model.setPopulation(population);
+                            model.setDt(dt);
+                            model.setDt_text(dt_text);
+                            model.setPop(pop);
+
+                            model.setTemp(temp);
+                            model.setFeels_like(feels_like);
+                            model.setPressure(pressure);
+                            model.setSea_level(sea_level);
+                            model.setGround_level(ground_level);
+                            model.setHumidity(humidity);
+                            model.setTemp_kf(temp_kf);
+
+                            model.setMain(main);
+                            model.setDescription(description);
+                            model.setIcon(icon);
+
+                            model.setCloudiness(cloudiness);
+
+                            model.setSpeed(speed);
+                            model.setDeg(deg);
+                            model.setGust(gust);
+
+                            model.setRain_volume(rain_volume);
+                            model.setSnow_volume(snow_volume);
+
+                            list.add(model);
+
+                            adapter = new ForecastAdapter(context,list,binding);
+                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context,RecyclerView.HORIZONTAL,false);
+                            binding.recyclerview.setLayoutManager(linearLayoutManager);
+                            binding.recyclerview.setAdapter(adapter);
+
+                            binding.recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+
+                                    int firstVisibility = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int lastVisibility = linearLayoutManager.findLastVisibleItemPosition();
+                                    if (firstVisibility >= 0 && firstVisibility < list.size()) {
+                                        String current_date = MyFun.currentDateFormat();
+                                        String list_date = MyFun.timeformat(Long.parseLong(list.get(firstVisibility).getDt()))[0];
+                                        if (current_date.equalsIgnoreCase(list_date)){
+                                            binding.tvToday.setText("Today");
+                                        }else {
+                                            binding.tvToday.setText(list_date);
+                                        }
+                                    }
+                                }
+                            });
+
                         }
 
 
