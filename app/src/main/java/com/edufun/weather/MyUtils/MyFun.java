@@ -19,6 +19,7 @@ import com.edufun.weather.databinding.ShowDialogBinding;
 import com.squareup.picasso.Picasso;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -91,6 +92,16 @@ public class MyFun {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM");
             String date = now.format(formatter);
+            return  date;
+        }
+        return null;
+    }
+
+    public static String customDateFormat(int i){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            LocalDate tomorrow = LocalDate.now().plusDays(i);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM");
+            String date = tomorrow.format(formatter);
             return  date;
         }
         return null;

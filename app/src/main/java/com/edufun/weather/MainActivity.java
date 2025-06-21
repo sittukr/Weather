@@ -422,14 +422,79 @@ public class MainActivity extends AppCompatActivity {
 
                                     int firstVisibility = linearLayoutManager.findFirstVisibleItemPosition();
                                     int lastVisibility = linearLayoutManager.findLastVisibleItemPosition();
-                                    if (firstVisibility >= 0 && firstVisibility < list.size()) {
+//                                    if (firstVisibility >= 0 && firstVisibility < list.size()) {
+//                                        String current_date = MyFun.currentDateFormat();
+//                                        String first_date = MyFun.timeformat(Long.parseLong(list.get(firstVisibility).getDt()))[0];
+//                                        String last_date = MyFun.timeformat(Long.parseLong(list.get(lastVisibility).getDt()))[0];
+//                                        if (current_date.equalsIgnoreCase(first_date)){
+//                                            binding.tvToday.setText("Today");
+//                                        }else {
+//                                            if (last_date.equalsIgnoreCase(MyFun.customDateFormat(1))){
+//                                                binding.tvToday.setText("Tomorrow");
+//                                            }else {
+//                                                binding.tvToday.setText(first_date);
+//                                            }
+//                                        }
+//                                        if(lastVisibility >=0 && lastVisibility<list.size()){
+//                                            if (first_date.equalsIgnoreCase(last_date)){
+//                                                if (last_date.equalsIgnoreCase(MyFun.customDateFormat(1))){
+//                                                    binding.tvNextDay.setText("Tomorrow");
+//                                                }else {
+//                                                    binding.tvNextDay.setText("Next 5 days >");
+//                                                }
+//                                            }else {
+//                                                if (last_date.equalsIgnoreCase(MyFun.customDateFormat(1))){
+//                                                    binding.tvNextDay.setText("Tomorrow");
+//                                                }else {
+//                                                    binding.tvNextDay.setText("Next 5 days >");
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+                                    if (firstVisibility >= 0 && firstVisibility < list.size() ){
                                         String current_date = MyFun.currentDateFormat();
-                                        String list_date = MyFun.timeformat(Long.parseLong(list.get(firstVisibility).getDt()))[0];
-                                        if (current_date.equalsIgnoreCase(list_date)){
+                                        String first_date = Objects.requireNonNull(MyFun.timeformat(Long.parseLong(list.get(firstVisibility).getDt())))[0];
+                                        String last_date = Objects.requireNonNull(MyFun.timeformat(Long.parseLong(list.get(lastVisibility).getDt())))[0];
+                                        if (current_date.equalsIgnoreCase(first_date)){
                                             binding.tvToday.setText("Today");
-                                        }else {
-                                            binding.tvToday.setText(list_date);
+                                            binding.tvToday.setTextColor(getResources().getColor(R.color.green));
+                                        } else if (MyFun.customDateFormat(1).equalsIgnoreCase(first_date)) {
+                                            binding.tvToday.setText("Tomorrow");
+                                            binding.tvToday.setTextColor(getResources().getColor(R.color.pink));
+                                        } else if (MyFun.customDateFormat(2).equalsIgnoreCase(first_date)) {
+                                            binding.tvToday.setText(first_date);
+                                            binding.tvToday.setTextColor(getResources().getColor(R.color.red));
+                                        } else if (MyFun.customDateFormat(3).equalsIgnoreCase(first_date)) {
+                                            binding.tvToday.setText(first_date);
+                                            binding.tvToday.setTextColor(getResources().getColor(R.color.orange));
+                                        } else if (MyFun.customDateFormat(4).equalsIgnoreCase(first_date)) {
+                                            binding.tvToday.setText(first_date);
+                                            binding.tvToday.setTextColor(getResources().getColor(R.color.pink_lite));
+                                        } else if (MyFun.customDateFormat(5).equalsIgnoreCase(first_date)) {
+                                            binding.tvToday.setText(first_date);
+                                            binding.tvToday.setTextColor(getResources().getColor(R.color.red_orange));
                                         }
+                                        if (lastVisibility >= 0 && lastVisibility < list.size()) {
+                                        } if (first_date.equalsIgnoreCase(last_date)) {
+                                            binding.tvNextDay.setText("Next 5 Days >");
+                                            binding.tvNextDay.setTextColor(getResources().getColor(R.color.grey));
+                                        } else if (MyFun.customDateFormat(1).equalsIgnoreCase(last_date)) {
+                                            binding.tvNextDay.setText("Tomorrow");
+                                            binding.tvNextDay.setTextColor(getResources().getColor(R.color.pink));
+                                        } else if (MyFun.customDateFormat(2).equalsIgnoreCase(last_date)) {
+                                            binding.tvNextDay.setText(last_date);
+                                            binding.tvNextDay.setTextColor(getResources().getColor(R.color.red));
+                                        } else if (MyFun.customDateFormat(3).equalsIgnoreCase(last_date)) {
+                                            binding.tvNextDay.setText(last_date);
+                                            binding.tvNextDay.setTextColor(getResources().getColor(R.color.orange));
+                                        } else if (MyFun.customDateFormat(4).equalsIgnoreCase(last_date)) {
+                                            binding.tvNextDay.setText(last_date);
+                                            binding.tvNextDay.setTextColor(getResources().getColor(R.color.pink_lite));
+                                        } else if (MyFun.customDateFormat(5).equalsIgnoreCase(last_date)) {
+                                            binding.tvNextDay.setText(last_date);
+                                            binding.tvNextDay.setTextColor(getResources().getColor(R.color.red_orange));
+                                        }
+
                                     }
                                 }
                             });

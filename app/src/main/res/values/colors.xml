@@ -12,5 +12,7 @@
     <color name="orange">#F8F403</color>
     <color name="red">#FF0000</color>
     <color name="red_orange">#FF2600</color>
+    <color name="pink_lite">#B02CE9</color>
+    <color name="pink">#FF00B7</color>
 
 </resources>
